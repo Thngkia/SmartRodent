@@ -60,6 +60,6 @@ void loop()
       Serial.println("Problem connect to the site");
 
     }
-    delay(10000);
+    delay(60000);
 
 }
