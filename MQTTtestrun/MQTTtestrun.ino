@@ -15,15 +15,16 @@ WiFiClient client;
 
 Adafruit_MQTT_Client mqtt(&client, AIO_SERVER, AIO_SERVERPORT, AIO_USERNAME, AIO_KEY);
 
-int  i;
+int pressure;
 boolean MQTT_connect();
+const int sensorOut = A0;
 
 boolean MQTT_connect() {  int8_t ret; if (mqtt.connected()) {    return true; }  uint8_t retries = 3;  while ((ret = mqtt.connect()) != 0) { mqtt.disconnect(); delay(2000);  retries--;if (retries == 0) { return false; }} return true;}
 
 Adafruit_MQTT_Publish mydata = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/mydata");
 void setup()
 {
-i = 0;
+pressure = 0;
 Serial.begin(9600);
 
   WiFi.disconnect();
@@ -45,14 +46,15 @@ Serial.begin(9600);
 void loop()
 {
 
-    i = (random(100,200));
+    pressure = analogRead(sensorOut);
     if (MQTT_connect()) {
-      if (mydata.publish(i)) {
-        Serial.println("Random data sent");
-        Serial.println(i);
+      if (mydata.publish(pressure)) {
+        Serial.println("pressure");
+        Serial.println(pressure);
+        pressure = map(pressure, 0, 1023, 0, 255);
 
       } else {
-        Serial.println("Problem to send the random data");
+        Serial.println("Problem to send the pressure");
 
       }
 
@@ -60,6 +62,6 @@ void loop()
       Serial.println("Problem connect to the site");
 
     }
-    delay(60000);
+    delay(10000);
 
 }
