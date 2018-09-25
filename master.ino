@@ -139,7 +139,7 @@ void setup(void)
   WiFi.disconnect();
   delay(3000);
   Serial.println("Starting to connect");
-  WiFi.begin("SINGTEL-DC6B", "0015785067");
+  WiFi.begin("wifi username", "wifi password");
   while ((!(WiFi.status() == WL_CONNECTED))) {
     delay(300);
   }
