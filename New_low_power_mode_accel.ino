@@ -251,6 +251,7 @@ void loop(void)
     WiFi.disconnect();
     delay(3000);
     Serial.println("Starting to connect");
+    Blynk.begin(auth, ssid, pass);
     WiFi.begin(ssid, pass);
     while ((!(WiFi.status() == WL_CONNECTED))) {
       delay(300);
