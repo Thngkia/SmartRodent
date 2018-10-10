@@ -251,8 +251,8 @@ void loop(void)
     WiFi.disconnect();
     delay(3000);
     Serial.println("Starting to connect");
-    Blynk.begin(auth, ssid, pass);
     WiFi.begin(ssid, pass);
+    Blynk.begin(auth, ssid, pass);
     while ((!(WiFi.status() == WL_CONNECTED))) {
       delay(300);
     }
@@ -290,7 +290,7 @@ void loop(void)
         Serial.println("The email was sent!");
 
         Blynk.run();
-        Blynk.email("Smartrodent2018@gmail.com", "Smart Rodent Glue Trap", "Rodent Caught!");
+        Blynk.email("Smartrodent2018@gmail.com", "Smart Rodent Glue Trap", "Trap Activated!");
         Blynk.notify("Trap activated!");
 
         delay(1000);
