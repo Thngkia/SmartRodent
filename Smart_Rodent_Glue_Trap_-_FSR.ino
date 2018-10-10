@@ -9,7 +9,7 @@
 #define uS_TO_s_FACTOR 1000000      /* Conversion factor for micro seconds to seconds */
 #define uS_TO_mins_FACTOR 60000000  /* Conversion factor for micro seconds to mins */
 #define uS_TO_hr_FACTOR 3600000000  /* Conversion factor for micro seconds to hours */
-#define TIME_TO_SLEEP  3           /* Periodic Check Time(in hours) */
+#define TIME_TO_SLEEP  1           /* Periodic Check Time(in hours) */
 #define TIME_TO_CAUGHT 5            /* Time Between Trap Activation and Double Checking (in mins) */
 
 // Calibrations
@@ -42,7 +42,7 @@ void setup(){
 }
 
 void loop(){
-  esp_sleep_enable_timer_wakeup(TIME_TO_SLEEP * uS_TO_mins_FACTOR);
+  esp_sleep_enable_timer_wakeup(TIME_TO_SLEEP * uS_TO_hr_FACTOR);
   
   fsrReading = analogRead(fsrAnalogPin);         //Read and store analog value from Force Sensitive Resistance
   
