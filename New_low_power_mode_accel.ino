@@ -1,9 +1,11 @@
+#define BLYNK_PRINT Serial
 #include <WiFi.h>
 #include <Wire.h>
 #include <Adafruit_Sensor.h>
 #include <Adafruit_ADXL345_U.h>
-#include <SparkFun_ADXL345.h> 
+#include <SparkFun_ADXL345.h>
 #include <SPI.h>
+#include <BlynkSimpleEsp32.h>
 
 #define  DEVID   0x00  //Device ID Register
 #define THRESH_TAP  0x1D  //Tap Threshold
@@ -35,18 +37,15 @@
 #define DATAZ1    0x37  //Z-Axis Data 1
 #define FIFO_CTL  0x38  //FIFO control
 #define FIFO_STATUS 0x39  //FIFO status
-
 #define BUTTON_PIN_BITMASK 0x10 // 2^4 in hex
+
 RTC_DATA_ATTR int bootCount = 0;
 
-
-char ssid[] = "Joseph's Black Brick";
-char pass[] = "loolalala";
-
+char ssid[] = "SINGTEL-DC6B";
+char pass[] = "0015785067";
+char auth[] = "e3a689ac14d84259a8a37c522948d98c";
 
 ADXL345 adxl = ADXL345(10);
-
-
 
 /* Assign a unique ID to this sensor at the same time */
 Adafruit_ADXL345_Unified accel = Adafruit_ADXL345_Unified(12345);
@@ -180,29 +179,18 @@ int interruptPin = 4;                 // Setup d4 to be the interrupt pin
 
 void setup(void)
 {
-  
-  
- 
-    Serial.begin(9600);
-
-    
-//Create an interrupt that will trigger when a tap is detected.
-    //  attachInterrupt(0,tap , RISING);
-    
-
-
-      
-  
+  Serial.begin(9600);
+  //Create an interrupt that will trigger when a tap is detected.
+  //  attachInterrupt(0,tap , RISING);
   /* Initialise the sensor */
-  
+
   if (!accel.begin())
   {
     /* There was a problem detecting the ADXL345 ... check your connections */
     Serial.println("Ooops, no ADXL345 detected ... Check your wiring!");
     while (1);
   }
-  
- 
+  Blynk.begin(auth, ssid, pass);
   /* Set the range to whatever is appropriate for your project */
   accel.setRange(ADXL345_RANGE_16_G);
   // displaySetRange(ADXL345_RANGE_8_G);
@@ -218,34 +206,26 @@ void setup(void)
   Serial.println("");
 
   //Initialise LED Pin
- // pinMode(ledPin, OUTPUT);
+  // pinMode(ledPin, OUTPUT);
 
   //calibrate accelerometer
   Serial.println("Calibrated!");
   calibrateAccel();
-  
+
   delay(300);
-  
-btStop();
-WiFi.mode(WIFI_OFF);
 
-      Serial.println("Wifi off");
-      
-
-
-
- esp_sleep_enable_ext0_wakeup(GPIO_NUM_4,0);
-
-
-
-  
+  btStop();
+  WiFi.mode(WIFI_OFF);
+  Serial.println("Wifi off");
+  esp_sleep_enable_ext0_wakeup(GPIO_NUM_4, 0);
 }
+
+
 void loop(void)
 {
- //Increment boot number and print it every reboot
-  ++bootCount;
-  Serial.println("Boot number: " + String(bootCount));
-  
+  //Increment boot number and print it every reboot
+  //Serial.println("Boot number: " + String(bootCount));
+
   /* Get a new sensor event */
   sensors_event_t event;
   accel.getEvent(&event);
@@ -261,33 +241,67 @@ void loop(void)
     moveDetected = true;
   }
 
+
   //If motion is detected- sound the alarm!
   if (moveDetected) {
     /*Serial.println("Alarm");
       ALARM();
       delay(1000);
     */
+    WiFi.disconnect();
+    delay(3000);
+    Serial.println("Starting to connect");
+    WiFi.begin(ssid, pass);
+    while ((!(WiFi.status() == WL_CONNECTED))) {
+      delay(300);
+    }
+    Serial.println("Connected!");
+    Serial.println("");
+    if (bootCount == 0) {
+      if (client.connect("maker.ifttt.com", 80)) {
+        MakerIFTTT_Key = "d1bgn89CimZ7PHgyPGebwEXAGeNFE2XxcKtCYslRp0B";
+        MakerIFTTT_Event = "email";
+        p = post_rqst;
+        p = append_str(p, "POST /trigger/");
+        p = append_str(p, MakerIFTTT_Event);
+        p = append_str(p, "/with/key/");
+        p = append_str(p, MakerIFTTT_Key);
+        p = append_str(p, " HTTP/1.1\r\n");
+        p = append_str(p, "Host: maker.ifttt.com\r\n");
+        p = append_str(p, "Content-Type: application/json\r\n");
+        p = append_str(p, "Content-Length: ");
+        content_length_here = p;
+        p = append_str(p, "NN\r\n");
+        p = append_str(p, "\r\n");
+        json_start = p;
+        p = append_str(p, "{\"value1\":\"");
+        p = append_str(p, "smartrodent2018@gmail.com");
+        p = append_str(p, "\",\"value2\":\"");
+        p = append_str(p, "Hello from esp32");
+        p = append_str(p, "\",\"value3\":\"");
+        p = append_str(p, "Trap Armed");
+        p = append_str(p, "\"}");
 
-    
-  
-   
-  WiFi.disconnect();
-  delay(3000);
-  Serial.println("Starting to connect");
-  WiFi.begin(ssid, pass);
-  while ((!(WiFi.status() == WL_CONNECTED))) {
-    delay(300);
-  }
-  Serial.println("Connected!");
-  Serial.println("Accelerometer Test"); Serial.println("");
+        compi = strlen(json_start);
+        content_length_here[0] = '0' + (compi / 10);
+        content_length_here[1] = '0' + (compi % 10);
+        client.print(post_rqst);
+        Serial.println("The email was sent!");
 
+        Blynk.run();
+        Blynk.email("Smartrodent2018@gmail.com", "Smart Rodent Glue Trap", "Rodent Caught!");
+        Blynk.notify("Trap activated!");
 
-
-
-
-
-    
-    if (client.connect("maker.ifttt.com", 80)) {
+        delay(1000);
+        WiFi.disconnect();
+        Serial.println("Wifi disconnected");
+        WiFi.mode(WIFI_OFF);
+        Serial.println("Wifi off");
+        moveDetected = false;
+        bootCount++;
+      }
+    }
+    else if (client.connect("maker.ifttt.com", 80)) {
       MakerIFTTT_Key = "d1bgn89CimZ7PHgyPGebwEXAGeNFE2XxcKtCYslRp0B";
       MakerIFTTT_Event = "email";
       p = post_rqst;
@@ -308,22 +322,6 @@ void loop(void)
       p = append_str(p, "\",\"value2\":\"");
       p = append_str(p, "Hello from esp32");
       p = append_str(p, "\",\"value3\":\"");
-
-      if(bootCount=0){
-      p = append_str(p, "Trap Armed");
-      p = append_str(p, "\"}");
-
-      compi = strlen(json_start);
-      content_length_here[0] = '0' + (compi / 10);
-      content_length_here[1] = '0' + (compi % 10);
-      client.print(post_rqst);
-
-      Serial.println("The email was sent!");
-      }
-      
-      
-      
-      if(bootCount>0){
       p = append_str(p, "Trap Activated");
       p = append_str(p, "\"}");
 
@@ -331,34 +329,25 @@ void loop(void)
       content_length_here[0] = '0' + (compi / 10);
       content_length_here[1] = '0' + (compi % 10);
       client.print(post_rqst);
-
       Serial.println("The email was sent!");
-      }
 
-      
-      delay(9000);
+      Blynk.run();
+      Blynk.email("Smartrodent2018@gmail.com", "Smart Rodent Glue Trap", "Rodent Caught!");
+      Blynk.notify("Rodent Caught!");
+
+      delay(1000);
       WiFi.disconnect();
       Serial.println("Wifi disconnected");
       WiFi.mode(WIFI_OFF);
       Serial.println("Wifi off");
       moveDetected = false;
-    
-
-
-
-
-    
+      bootCount++;
     }
-
-delay(9000);
-  Serial.println("Going to sleep now");
-  delay(9000);
-  
-  esp_deep_sleep_start();  
-  
-
+    delay(9000);
+    Serial.println("Going to sleep now");
+    delay(9000);
+    esp_deep_sleep_start();
   }
-
 }
 
 
@@ -464,8 +453,8 @@ void ALARM() {
   //dont check for movement until recalibrated again
   calibrated = false;
 
-//   blink LED
- // digitalWrite(ledPin, HIGH);
+  //   blink LED
+  // digitalWrite(ledPin, HIGH);
   //digitalWrite(ledPin, LOW);
 
 }
