@@ -342,7 +342,6 @@ void loop(void)
       WiFi.mode(WIFI_OFF);
       Serial.println("Wifi off");
       moveDetected = false;
-      bootCount++;
     }
     delay(9000);
     Serial.println("Going to sleep now");
