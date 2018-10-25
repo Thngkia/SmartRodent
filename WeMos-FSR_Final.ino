@@ -32,14 +32,17 @@ int fsrReading;
 
 // You should get Auth Token in the Blynk App.
 // Go to the Project Settings (nut icon).
-char auth[] = "fd518219c7534ad58e9cafeef6b19e96";
+char auth[] = "76a2d7d3f7de4da5bee8c225dea0678e";
 
 // Your WiFi credentials.
 // Set password to "" for open networks.
-char ssid[] = "SINGTEL-42C4";
-char pass[] = "eegisaagio";
+char ssid[] = "iPhone";
+char pass[] = "jeremythng";
+char emailadd[] = "SmartRodent2018@gmail.com";
 
-char serialnum[] = "FSR Glue Trap 5";
+char IFTTTKey[] = "d1bgn89CimZ7PHgyPGebwE_6j4XtIFukTAoZwbtXaja";
+
+char serialnum[] = "FSR Glue Trap 1";
 
 WiFiClient client;
 
@@ -112,8 +115,8 @@ void loop() {
         }
 
         if (client.connect("maker.ifttt.com", 80)) {
-          MakerIFTTT_Key = "d1bgn89CimZ7PHgyPGebwEXAGeNFE2XxcKtCYslRp0B";
-          MakerIFTTT_Event = "email";
+          MakerIFTTT_Key = IFTTTKey;
+          MakerIFTTT_Event = "FSR1";
           p = post_rqst;
           p = append_str(p, "POST /trigger/");
           p = append_str(p, MakerIFTTT_Event);
@@ -128,11 +131,7 @@ void loop() {
           p = append_str(p, "\r\n");
           json_start = p;
           p = append_str(p, "{\"value1\":\"");
-          p = append_str(p, "smartrodent2018@gmail.com");
-          p = append_str(p, "\",\"value2\":\"");
           p = append_str(p, serialnum);
-          p = append_str(p, "\",\"value3\":\"");
-          p = append_str(p, "FSR Trap Activated!");
           p = append_str(p, "\"}");
 
           compi = strlen(json_start);
@@ -144,7 +143,7 @@ void loop() {
         Blynk.run();
         Blynk.virtualWrite(V1, force);
         delay(500);
-        Blynk.email("SmartRodent2018@gmail.com", serialnum, "FSR Trap Activated!");
+        Blynk.email(emailadd, serialnum, "FSR Trap Activated!");
         Blynk.notify("FSR Trap Activated!");
         Serial.println("Blynk email was sent!");
 
@@ -169,8 +168,8 @@ void loop() {
           delay(300);
         }
         if (client.connect("maker.ifttt.com", 80)) {
-          MakerIFTTT_Key = "d1bgn89CimZ7PHgyPGebwEXAGeNFE2XxcKtCYslRp0B";
-          MakerIFTTT_Event = "email";
+          MakerIFTTT_Key = IFTTTKey;
+          MakerIFTTT_Event = "FSR2";
           p = post_rqst;
           p = append_str(p, "POST /trigger/");
           p = append_str(p, MakerIFTTT_Event);
@@ -185,11 +184,7 @@ void loop() {
           p = append_str(p, "\r\n");
           json_start = p;
           p = append_str(p, "{\"value1\":\"");
-          p = append_str(p, "smartrodent2018@gmail.com");
-          p = append_str(p, "\",\"value2\":\"");
           p = append_str(p, serialnum);
-          p = append_str(p, "\",\"value3\":\"");
-          p = append_str(p, "FSR Rodent Caught!");
           p = append_str(p, "\"}");
 
           compi = strlen(json_start);
@@ -201,7 +196,7 @@ void loop() {
         Blynk.run();
         Blynk.virtualWrite(V1, force);
         delay(500);
-        Blynk.email("SmartRodent2018@gmail.com", serialnum, "FSR Rodent Caught!");
+        Blynk.email(emailadd, serialnum, "FSR Rodent Caught!");
         Blynk.notify("FSR Rodent Caught!");
         Serial.println("Blynk email was sent!");
 
@@ -222,8 +217,8 @@ void loop() {
           delay(300);
         }
         if (client.connect("maker.ifttt.com", 80)) {
-          MakerIFTTT_Key = "d1bgn89CimZ7PHgyPGebwEXAGeNFE2XxcKtCYslRp0B";
-          MakerIFTTT_Event = "email";
+          MakerIFTTT_Key = IFTTTKey;
+          MakerIFTTT_Event = "FSR3";
           p = post_rqst;
           p = append_str(p, "POST /trigger/");
           p = append_str(p, MakerIFTTT_Event);
@@ -238,11 +233,7 @@ void loop() {
           p = append_str(p, "\r\n");
           json_start = p;
           p = append_str(p, "{\"value1\":\"");
-          p = append_str(p, "smartrodent2018@gmail.com");
-          p = append_str(p, "\",\"value2\":\"");
           p = append_str(p, serialnum);
-          p = append_str(p, "\",\"value3\":\"");
-          p = append_str(p, "FSR Rodent Escaped!");
           p = append_str(p, "\"}");
 
           compi = strlen(json_start);
@@ -254,7 +245,7 @@ void loop() {
         Blynk.run();
         Blynk.virtualWrite(V1, force);
         delay(500);
-        Blynk.email("SmartRodent2018@gmail.com", serialnum, "FSR Rodent Escaped!");
+        Blynk.email(emailadd, serialnum, "FSR Rodent Escaped!");
         Blynk.notify("FSR Rodent Escaped!");
         Serial.println("Blynk email was sent!");
 
